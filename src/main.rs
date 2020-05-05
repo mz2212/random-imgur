@@ -60,7 +60,7 @@ fn main() {
 
 fn fetch() -> (image::ImageBuffer<image::Rgb<u8>, std::vec::Vec<u8>>, u32, u32) {
 	let url_len = vec![5, 7];
-	let delay = time::Duration::from_secs_f32(0.5);
+	let delay = time::Duration::from_secs_f32(0.1);
 	let mut imurl = String::from("");
 
 	for _ in 0..*url_len.choose(&mut thread_rng()).unwrap() {
