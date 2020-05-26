@@ -10,8 +10,6 @@ use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use image::Pixel;
-use std::thread::sleep;
-use std::time;
 
 const SITE:&str = "https://i.imgur.com";
 const SITE_ERR:&str = "https://i.imgur.com/removed.png";
@@ -21,14 +19,15 @@ fn main() {
 	let mut event_pump = sdl_context.event_pump().unwrap();
 	let video_subsystem = sdl_context.video().unwrap();
 
-	let window = video_subsystem.window("Image", 640, 480)
+	let window = video_subsystem.window("Image", 1280, 720)
 				.position_centered()
+				.resizable()
 				.opengl()
 				.build().unwrap();
 
 	let mut canvas = window.into_canvas().present_vsync().build().unwrap();
 	let (img, width, height) = fetch();
-	canvas.window_mut().set_size(width, height).unwrap();
+	canvas.set_logical_size(width, height).unwrap();
 	paint(&mut canvas, img);
 
 	let mut sdl_quit = false;
@@ -45,7 +44,7 @@ fn main() {
 						},
 						Keycode::N => {
 							let (img, width, height) = fetch();
-							canvas.window_mut().set_size(width, height).unwrap();
+							canvas.set_logical_size(width, height).unwrap();
 							paint(&mut canvas, img);
 						},
 						_ => {}
@@ -59,8 +58,7 @@ fn main() {
 }
 
 fn fetch() -> (image::ImageBuffer<image::Rgb<u8>, std::vec::Vec<u8>>, u32, u32) {
-	let url_len = vec![5, 7];
-	let delay = time::Duration::from_secs_f32(0.1);
+	let url_len = vec![5];
 	let mut imurl = String::from("");
 
 	for _ in 0..*url_len.choose(&mut thread_rng()).unwrap() {
@@ -70,7 +68,6 @@ fn fetch() -> (image::ImageBuffer<image::Rgb<u8>, std::vec::Vec<u8>>, u32, u32) 
 	let mut response = reqwest::blocking::get(format!("{}/{}.png", SITE, imurl).as_str()).unwrap();
 
 	while !response.status().is_success() || response.url().as_str() == SITE_ERR {
-		sleep(delay);
 		imurl = String::from("");
 		for _ in 0..*url_len.choose(&mut thread_rng()).unwrap() {
 			imurl.push_str(thread_rng().sample(Alphanumeric).to_string().as_str());
@@ -89,6 +86,8 @@ fn fetch() -> (image::ImageBuffer<image::Rgb<u8>, std::vec::Vec<u8>>, u32, u32) 
 }
 
 fn paint(canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, img: image::ImageBuffer<image::Rgb<u8>, std::vec::Vec<u8>>) {
+	canvas.set_draw_color(Color::RGB(0, 0, 0));
+	canvas.clear();
 	let pixels = img.enumerate_pixels();
 	for (x, y, pix) in pixels {
 		let color = pix.channels();
