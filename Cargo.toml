@@ -1,13 +1,13 @@
 [package]
 name = "random-imgur"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mike <michaelpulliam1@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reqwest = { version = "0.10", features = ["blocking"] }
-rand = "0.7"
-image = "0.23"
-sdl2 = "0.34"
+reqwest = { version = "0.11", features = ["blocking"] }
+rand = "0.8"
+image = "0.24"
+sdl2 = "0.35"

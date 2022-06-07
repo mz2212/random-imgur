@@ -60,24 +60,24 @@ fn main() {
 fn fetch() -> (image::ImageBuffer<image::Rgb<u8>, std::vec::Vec<u8>>, u32, u32) {
 	let url_len = vec![5];
 	let mut imurl = String::from("");
+	let mut rng = thread_rng();
 
 	for _ in 0..*url_len.choose(&mut thread_rng()).unwrap() {
 		imurl.push_str(thread_rng().sample(Alphanumeric).to_string().as_str());
 	}
 
+	println!("Trying url at {}/{}.png", SITE, imurl);
 	let mut response = reqwest::blocking::get(format!("{}/{}.png", SITE, imurl).as_str()).unwrap();
 
 	while !response.status().is_success() || response.url().as_str() == SITE_ERR {
-		imurl = String::from("");
-		for _ in 0..*url_len.choose(&mut thread_rng()).unwrap() {
-			imurl.push_str(thread_rng().sample(Alphanumeric).to_string().as_str());
-		}
+		imurl = (&mut rng).sample_iter(Alphanumeric).take(5).map(char::from).collect();
+		println!("Trying url at {}/{}.png", SITE, imurl);
 		response = reqwest::blocking::get(format!("{}/{}.png", SITE, imurl).as_str()).unwrap();
 	}
 
 	println!("Found valid imgur url at {}/{}.png", SITE, imurl);
 
-	let img = image::load_from_memory(&response.bytes().unwrap()).unwrap().to_rgb();
+	let img = image::load_from_memory(&response.bytes().unwrap()).unwrap().to_rgb8();
 	let width = img.width();
 	let height = img.height();
 
